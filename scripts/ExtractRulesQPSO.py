@@ -1,5 +1,5 @@
 ## This file contains the RuleExtractionQPSO class definition
-import random
+import math
 import numpy as np
 
 class ExtractRulesQPSO:
@@ -31,5 +31,35 @@ class ExtractRulesQPSO:
         self.best_particles = np.zeros(num_dimensions)
         
         
+    ## Return exponential membership with given inputs
+    def _expMembership(x, m, s):
+        return(math.exp(-0.5 * math.pow((x - m) / s, 2)))
+    
+    ## Return max membership across all rules for one data point (a vector)
+    def _maxMembershipFromAllRules(centers, stds, data):
+        """This is a utility function to return max membership of all rules.
+        centers: 2-dimentional array for all center parameters of the rules, 
+        where the first dimension is equal to the number of rules, 
+        the second is equal to the number of dimensions of the data.
         
-    def 
+        std: 2-dimentional array for all std parameters of the rules, 
+        where the first dimension is equal to the number of rules, 
+        the second is equal to the number of dimensions of the data.
+        
+        data: 1-dimensional array for a given data point, where the length is equal to the dimension"""
+        mu = 0
+        
+        ## For all rules (note that len(centers) and len(stds) should always be the same)
+        for m, s in zip(centers, stds):
+            curMu = 1
+            
+            ## For all dimensions of the input data point
+            for d in data:
+                curMu *= _expMembership(d, m, s)
+            
+            mu = curMu if curMu > mu else mu
+        
+        return(mu)
+        
+        
+        

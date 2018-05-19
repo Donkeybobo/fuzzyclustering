@@ -57,7 +57,7 @@ class ExtractRulesQPSO:
             
             ## For all dimensions of the input data point
             for d in data:
-                curMu *= _expMembership(d, m, s)
+                curMu *= ExtractRulesQPSO._expMembership(d, m, s)
             
             mu = curMu if curMu > mu else mu
         

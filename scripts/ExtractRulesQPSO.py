@@ -114,10 +114,36 @@ class ExtractRulesQPSO:
         The input all_class_centers is a 3-dimensional array that contains all 
         center parameters for all classes for all rules
         """
+        stds = []
+        start_idx = 0
         
-        num_antecedents = len(all_class_centers[0][0])
+        # iterate through classes
+        for k in range(len(all_class_centers)):
+            num_rules = len(all_class_centers[k])
+            num_antecedents = len(all_class_centers[k][0])
+            
+            # reshape the current trunk of parameters into a 2-dimensional array
+            std = np.reshape(particle[start_idx:(start_idx + num_rules * num_antecedents)], (num_rules, num_antecedents))
+            
+            # append the std to stds
+            stds.append(std)
+            
+            # update start_idx
+            start_idx += num_rules * num_antecedents
         
-        return(np.reshape(particle, (-1, num_antecedents)))
+        return(stds)
+    
+    
+    ## Objective function to minimize in QPSO
+    def _objective(particle, all_class_centers, all_class_data):
+        """The particle variable is all the parameters (stds) we are optimizing using QPSO.
+        
+        all_class_centers, all_class_data are the same as the ones we used in functions defined above.
+        """
+        
+        stds = _arrangeStds(particle, all_class_centers)
+        
+        class_error = _classificationError(all_)
         
         
         

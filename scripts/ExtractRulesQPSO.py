@@ -91,14 +91,14 @@ class ExtractRulesQPSO:
             ### iterate number of data points for each class
             for i in range(len(data_k)):
                 # max membership for class k
-                max_membership_k = _maxMembershipFromAllRules(centers_k, stds_k, data_k[i])
+                max_membership_k = ExtractRulesQPSO._maxMembershipFromAllRules(centers_k, stds_k, data_k[i])
                 
                 # max membership for classes that are not k
                 max_membership_not_k = 0
                 
                 for kk in range(len(all_class_centers)):
                     if (kk != k):
-                        temp_membership = _maxMembershipFromAllRules(all_class_centers[kk], 
+                        temp_membership = ExtractRulesQPSO._maxMembershipFromAllRules(all_class_centers[kk], 
                                                                      all_class_stds[kk], 
                                                                      data_k[i])
                         
@@ -143,13 +143,10 @@ class ExtractRulesQPSO:
         all_class_centers, all_class_data are the same as the ones we used in functions defined above.
         """
         
-#         all_class_stds = _arrangeStds(particle, all_class_centers)
+        all_class_stds = ExtractRulesQPSO._arrangeStds(particle, all_class_centers)
         
-#         class_error = _classificationError(all_class_centers, all_class_stds, all_class_data)
-        
-        ## for testing purposes
-        class_error = (particle[2] - 2) ** 2 + (particle[1] - 1000) ** 4
-        
+        class_error = ExtractRulesQPSO._classificationError(all_class_centers, all_class_stds, all_class_data)
+
         return(class_error)
     
     ## Solver function to find the optimal parameters to minimize _objective defined above

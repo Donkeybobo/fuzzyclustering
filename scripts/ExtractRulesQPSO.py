@@ -60,6 +60,64 @@ class ExtractRulesQPSO:
             mu = curMu if curMu > mu else mu
         
         return(mu)
+    
+    ## Return the overall classification error
+    def _classificationError(all_class_centers, all_class_stds, all_class_data):
+        """This function calculates the overall classification error that is to be minimized.
         
+        all_class_centers: 3-dimentional array where the first dimension is for different class; 
+        for each of the classes, the 2-dimensional array is all center parameters for all rules, 
+        like centers used in _maxMembershipFromAllRules.
+        
+        all_class_stds: 3-dimentional array where the first dimension is for different class; 
+        for each of the classes, the 2-dimensional array is all std parameters for all rules, 
+        like stds used in _maxMembershipFromAllRules.
+        
+        all_class_data: 3-dimentional array where the first dimension is for different class;
+        for each of the classes, the 2-dimensional array is all the available data.
+        """
+        
+        error = 0
+        
+        ### iterate all available classes
+        for k in range(len(all_class_centers)):
+            ## parameters for class k and data
+            centers_k = all_class_centers[k]
+            stds_k = all_class_stds[k]
+            data_k = all_class_data[k]
+            
+            ### iterate number of data points for each class
+            for i in range(len(data_k)):
+                # max membership for class k
+                max_membership_k = _maxMembershipFromAllRules(centers_k, stds_k, data_k[i])
+                
+                # max membership for classes that are not k
+                max_membership_not_k = 0
+                
+                for kk in range(len(all_class_centers)):
+                    if (kk != k):
+                        temp_membership = _maxMembershipFromAllRules(all_class_centers[kk], 
+                                                                     all_class_stds[kk], 
+                                                                     data_k[i])
+                        
+                        max_membership_not_k = temp_membership if temp_membership > max_membership_not_k else max_membership_not_k
+                        
+            
+                error += 0.5 * math.pow(1 - max_membership_k + max_membership_not_k, 0.5)
+        
+        return(error)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+   
         
         

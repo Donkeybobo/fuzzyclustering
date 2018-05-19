@@ -143,9 +143,12 @@ class ExtractRulesQPSO:
         all_class_centers, all_class_data are the same as the ones we used in functions defined above.
         """
         
-        all_class_stds = _arrangeStds(particle, all_class_centers)
+#         all_class_stds = _arrangeStds(particle, all_class_centers)
         
-        class_error = _classificationError(all_class_centers, all_class_stds, all_class_data)
+#         class_error = _classificationError(all_class_centers, all_class_stds, all_class_data)
+        
+        ## for testing purposes
+        class_error = (particle[2] - 2) ** 2 + (particle[1] - 1000) ** 4
         
         return(class_error)
     
@@ -158,7 +161,7 @@ class ExtractRulesQPSO:
         pbest = x.copy()
         
         # calculate the initial objective functions according to x
-        f_x = [_objective(p, all_class_centers, all_class_data) for p in x]
+        f_x = np.array([ExtractRulesQPSO._objective(p, all_class_centers, all_class_data) for p in x])
         f_pbest = f_x.copy()
         
         # find the index which gives the minimum objective
@@ -179,19 +182,19 @@ class ExtractRulesQPSO:
             ## iterate through all particles
             for i in range(self.num_particles):
                 fi = np.random.rand(self.num_dimensions)
-                p = np.array(pbest[i]) * np.array(fi) + (1 - np.array(fi)) * np.array(gbest)
+                p = np.array(pbest[i]) * np.array(fi) + (1 - np.array(fi)) * np.array(self.gbest)
                 u = np.random.rand(self.num_dimensions)
                 b = (np.array(mbest) - np.array(x[i])) * beta
                 v = np.log(np.array(u)) * -1
                 
                 # Compute y
-                prob_vector = np.ceil((-1) ** np.array(np.random.rand(self.num_dimensions) + 0.5)) * b * v
+                prob_vector = (-1) ** np.ceil(np.array(np.random.rand(self.num_dimensions) + 0.5)) * b * v
                 
                 y = p + prob_vector
                 
                 # update x[i] and f_x[i]
                 x[i] = y.copy()
-                f_x[i] = _objective(x[i], all_class_centers, all_class_data)
+                f_x[i] = ExtractRulesQPSO._objective(x[i], all_class_centers, all_class_data)
                 
                 # update pbest and f_pbest when needed
                 if (f_x[i] < f_pbest[i]):
@@ -203,7 +206,7 @@ class ExtractRulesQPSO:
             f_gbest = f_pbest[g]
             self.MINIMUM = f_gbest
             
-        self.best_particle = gbest
+        self.best_particle = self.gbest
 
         
         

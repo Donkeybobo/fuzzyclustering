@@ -106,6 +106,18 @@ class ExtractRulesQPSO:
                 error += 0.5 * math.pow(1 - max_membership_k + max_membership_not_k, 0.5)
         
         return(error)
+    
+    
+    ## arrange particle into stds
+    def _arrangeStds(particle, all_class_centers):
+        """This function reshapes a 1-dimensional vector (particle) into 2-dimentional stds variable.
+        The input all_class_centers is a 3-dimensional array that contains all 
+        center parameters for all classes for all rules
+        """
+        
+        num_antecedents = len(all_class_centers[0][0])
+        
+        return(np.reshape(particle, (-1, num_antecedents)))
         
         
         

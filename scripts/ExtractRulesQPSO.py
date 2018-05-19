@@ -30,6 +30,8 @@ class ExtractRulesQPSO:
         self.gbest = np.zeros(num_dimensions)
         self.best_particles = np.zeros(num_dimensions)
         
+        self.MINIMUM = 0
+        
         
     ## Return exponential membership with given inputs
     def _expMembership(x, m, s):
@@ -146,7 +148,63 @@ class ExtractRulesQPSO:
         class_error = _classificationError(all_class_centers, all_class_stds, all_class_data)
         
         return(class_error)
+    
+    ## Solver function to find the optimal parameters to minimize _objective defined above
+    def solver(self, all_class_centers, all_class_data):
+        # random vector
+        x = np.random.rand(self.num_particles, self.num_dimensions) * (self.parameter_upper_bounds - self.parameter_lower_bounds) + self.parameter_lower_bounds
         
+        # First set pbest = x
+        pbest = x.copy()
+        
+        # calculate the initial objective functions according to x
+        f_x = [_objective(p, all_class_centers, all_class_data) for p in x]
+        f_pbest = f_x.copy()
+        
+        # find the index which gives the minimum objective
+        g = np.where(f_pbest == f_pbest.min())[0].min()
+        
+        # update gbest and f_gbest
+        self.gbest = pbest[g].copy()
+        f_gbest = f_pbest[g]
+        
+        # The main optimization procedure
+        for t in range(self.num_generations):
+            # step size
+            beta = (1 - 0.5) * (self.num_generations - 1 - t) / self.num_generations + 0.5
+            
+            # mbest: the average of all current particles
+            mbest = np.sum(pbest, axis = 0) / self.num_particles
+            
+            ## iterate through all particles
+            for i in range(self.num_particles):
+                fi = np.random.rand(self.num_dimensions)
+                p = np.array(pbest[i]) * np.array(fi) + (1 - np.array(fi)) * np.array(gbest)
+                u = np.random.rand(self.num_dimensions)
+                b = (np.array(mbest) - np.array(x[i])) * beta
+                v = np.log(np.array(u)) * -1
+                
+                # Compute y
+                prob_vector = np.ceil((-1) ** np.array(np.random.rand(self.num_dimensions) + 0.5)) * b * v
+                
+                y = p + prob_vector
+                
+                # update x[i] and f_x[i]
+                x[i] = y.copy()
+                f_x[i] = _objective(x[i], all_class_centers, all_class_data)
+                
+                # update pbest and f_pbest when needed
+                if (f_x[i] < f_pbest[i]):
+                    pbest[i] = x[i].copy()
+                    f_pbest[i] = f_x[i].copy()
+            # update gbest and f_gbest    
+            g = np.where(f_pbest == f_pbest.min())[0].min()
+            self.gbest = pbest[g]
+            f_gbest = f_pbest[g]
+            self.MINIMUM = f_gbest
+            
+        self.best_particle = gbest
+
         
         
         

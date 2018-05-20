@@ -3,6 +3,15 @@ import math
 import numpy as np
 
 class FuzzyClustering:
+    ### Class variables
+    ra = 1
+    rb = 1.25
+    
+    alpha = 4 / ra / ra
+    beta = 4 / rb / rb
+    
+    elower = 0.15
+    eupper = 0.5
     
     ### Making sure all class variables are of class np.array
     
@@ -22,6 +31,35 @@ class FuzzyClustering:
         
         return(((x1 - x2) ** 2).sum())
     
+    ## Function to normalize data 
+    def _normalizeData(self):
+        
+        min_max = (np.amin(self.data, axis = 0), np.amax(self.data, axis = 0))
+        
+        # set normalizing_factors
+        self.normalizing_factors = (2 / (min_max[1] - min_max[0]), -(min_max[1] + min_max[0]) / (min_max[1] - min_max[0]))
+        
+        # apply normalizing factors to original data
+        for j in range(len(self.data[0])):
+            self.data[j] = self.normalizing_factors[0] * self.data[j] + self.normalizing_factors[1]
+    
+    ## Function to calculate initial potential for data point i
+    def _calculateInitialPotential(self, i):
+        p = 0
+        
+        for j in range(len(self.data)):
+            p += math.exp(-FuzzyClustering.alpha * FuzzyClustering._calclualteDistance(self.data[i], self.data[j]))
+            
+        return(p)
+    
+    ## function to set initial potential for all data points
+    def _setInitialPotentials(self):
+        ## initialize potentials
+        self.potentials = np.zeros(len(self.data))
+        
+        for i in range(len(self.potentials)):
+            self.potentials[i] = self._calculateInitialPotential(i)
+    
     ## Function to update potentials for all data points
     def _updatePotential(self):
         # get index (k) of data point with max potential
@@ -33,33 +71,37 @@ class FuzzyClustering:
         
         # update potentials
         for i in range(len(self.potentials)):
-            self.potentials[i] = self.potentials[i] - pk * math.exp(-beta * FuzzyClustering._calclualteDistance(self.data[i], xk))
+            self.potentials[i] = self.potentials[i] - pk * math.exp(-FuzzyClustering.beta * FuzzyClustering._calclualteDistance(self.data[i], xk))
             
     
-    ## Initialize an object with parameters
-    def __init__(self, 
-                 num_particles, 
-                 num_generations, 
-                 num_dimensions, 
-                 parameter_lower_bounds = -2, 
-                 parameter_upper_bounds = 2):
-        """This function initialize a RuleExtractionQPSO with given inputs.
-        num_particles: number of particles to use.
-        num_generations: number of generations to iterate when solving an optimization problem.
-        num_dimensions: the dimension of the particle, i.e., the number of parameters this QPSO tries to optimize.
-        parameter_lower_bounds: lower bounds of the INITIAL parameters.
-        parameter_upper_bounds: upper bounds of the INITIAL parameters.
+    ## Initialize an object 
+    def __init__(self, data):
+        """This function initialize a FuzzyClustering object and set necessary parameters
+        data: 2-dimensional array
         """
-        ## Parameters to initialize QPSO
-        self.num_particles = num_particles
-        self.num_generations = num_generations
-        self.num_dimensions = num_dimensions
+        self.data = np.array(data)
+        self.cluster_centers = []
         
-        self.parameter_lower_bounds = parameter_lower_bounds
-        self.parameter_upper_bounds = parameter_upper_bounds
+        ### helper variable
+        self.grey_center_index = -1
         
-        ## Initialize variables needed when running QPSO
-        self.gbest = np.zeros(num_dimensions)
-        self.best_particles = np.zeros(num_dimensions)
+        # normalize data points
+        self._normalizeData()
         
-        self.MINIMUM = 0
+        # initialize potentials for all data points
+        self._setInitialPotentials()
+        
+        # find the first cluster center and append it to cluster_centers
+        idx = self._getIndexWithMaxPotential()
+        self.cluster_centers.append(self.data[idx])
+        
+        # save p1star
+        self.p1star = self.potentials[idx]
+        
+    ## extract clustering centers
+    def extractClusteringCenters(self):
+        
+        
+        
+        
+        

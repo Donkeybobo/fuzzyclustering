@@ -73,6 +73,15 @@ class FuzzyClustering:
         for i in range(len(self.potentials)):
             self.potentials[i] = self.potentials[i] - pk * math.exp(-FuzzyClustering.beta * FuzzyClustering._calclualteDistance(self.data[i], xk))
             
+    ## Function to return the shortest distance between data[k] to all previous selected cluster centers
+    def _getDMin(self, k):
+        dist = []
+        
+        for center in self.cluster_centers:
+            dist.append(FuzzyClustering._calclualteDistance(self.data[k], center))
+            
+        return(np.min(dist))
+            
     
     ## Initialize an object 
     def __init__(self, data):
@@ -100,7 +109,40 @@ class FuzzyClustering:
         
     ## extract clustering centers
     def extractClusteringCenters(self):
+        ## Stop until all criteria met
+        while True:
+            
+            ## update potentials accordingly
+            if (self.grey_center_index >= 0):
+                self._setKthPotential(self.grey_center_index)
+                self.grey_center_index = -1
+            else:
+                self._updatePotential()
+                
+            ## Find pkstar
+            k = _getIndexWithMaxPotential()
+            pkstar = self.data[k]
+            
+            ## update potentials and determine whether to continue
+            if (pkstar > FuzzyClustering.eupper * self.p1star):
+                # append the new cluster center into the list
+                self.cluster_centers.append(self.data[k])
+            elif (pkstar < FuzzyClustering.elower * self.p1star):
+                break
+            else:
+                d_min = self._getDMin(k)
+                
+                if (d_min / FuzzyClustering.ra + pkstar / p1star >= 1):
+                    # append the new cluster center
+                    self.cluster_centers.append(self.data[k])
+                else:
+                    self.grey_center_index = k
+                    
+    ## Get denormalized cluster centers
+    def getDenormalizedClusterCenters(self):
         
+         
+                
         
         
         

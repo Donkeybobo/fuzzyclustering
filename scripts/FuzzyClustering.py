@@ -41,7 +41,7 @@ class FuzzyClustering:
         
         # apply normalizing factors to original data
         for j in range(len(self.data[0])):
-            self.data[j] = self.normalizing_factors[0][j] * self.data[j] + self.normalizing_factors[1][j]
+            self.data[:,j] = self.normalizing_factors[0][j] * self.data[:,j] + self.normalizing_factors[1][j]
     
     ## Function to calculate initial potential for data point i
     def _calculateInitialPotential(self, i):
@@ -144,7 +144,7 @@ class FuzzyClustering:
         
         # apply normalizing factors to get data into original scales
         for j in range(len(denormalized[0])):
-            denormalized[j] = (denormalized[j] - self.normalizing_factors[1][j]) / self.normalizing_factors[0][j] 
+            denormalized[:,j] = (denormalized[:,j] - self.normalizing_factors[1][j]) / self.normalizing_factors[0][j] 
             
         return(denormalized)
                 

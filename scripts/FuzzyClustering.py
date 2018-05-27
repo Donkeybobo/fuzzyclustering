@@ -17,7 +17,7 @@ class FuzzyClustering:
     
     ## Function to return the index of data points which has the largest potential
     def _getIndexWithMaxPotential(self):
-        return(np.where(self.potentials == self.potentials.min())[0].min())
+        return(np.where(self.potentials == self.potentials.max())[0].min())
     
     ## Function to simply set k-th data point's potential to 0
     def _setKthPotential(self, k):
@@ -120,8 +120,8 @@ class FuzzyClustering:
                 self._updatePotential()
                 
             ## Find pkstar
-            k = _getIndexWithMaxPotential()
-            pkstar = self.data[k]
+            k = self._getIndexWithMaxPotential()
+            pkstar = self.potentials[k]
             
             ## update potentials and determine whether to continue
             if (pkstar > FuzzyClustering.eupper * self.p1star):
@@ -132,7 +132,7 @@ class FuzzyClustering:
             else:
                 d_min = self._getDMin(k)
                 
-                if (d_min / FuzzyClustering.ra + pkstar / p1star >= 1):
+                if (d_min / FuzzyClustering.ra + pkstar / self.p1star >= 1):
                     # append the new cluster center
                     self.cluster_centers.append(self.data[k])
                 else:
@@ -140,7 +140,7 @@ class FuzzyClustering:
                     
     ## Get denormalized cluster centers
     def getDenormalizedClusterCenters(self):
-        denormalized = self.data.copy()
+        denormalized = np.array(self.cluster_centers.copy())
         
         # apply normalizing factors to get data into original scales
         for j in range(len(denormalized[0])):

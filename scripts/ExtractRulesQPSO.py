@@ -1,6 +1,7 @@
 ## This file contains the RuleExtractionQPSO class definition
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 class ExtractRulesQPSO:
     
@@ -35,7 +36,7 @@ class ExtractRulesQPSO:
         
     ## Return exponential membership with given inputs
     def _expMembership(x, m, s):
-        return(math.exp(-0.5 * math.pow((x - m) / s, 2)))
+        return(np.exp(-0.5 * np.power((np.array(x) - m) / s, 2)))
     
     ## Return max membership across all rules for one data point (a vector)
     def _maxMembershipFromAllRules(centers, stds, data):
@@ -56,8 +57,8 @@ class ExtractRulesQPSO:
             curMu = 1
             
             ## For all dimensions of the input data point
-            for d in data:
-                curMu *= ExtractRulesQPSO._expMembership(d, m, s)
+            for j in range(len(data)):
+                curMu *= ExtractRulesQPSO._expMembership(data[j], m[j], s[j])
             
             mu = curMu if curMu > mu else mu
         

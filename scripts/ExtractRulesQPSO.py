@@ -64,6 +64,38 @@ class ExtractRulesQPSO:
         
         return(mu)
     
+    def _productMFFromAllRules(centers, stds, data):
+        """
+        Calculates product of MFs of all input rules (centers + stds)
+        """
+        mu = 1
+        
+        for m, s in zip(centers, stds):
+            curMu = 1
+            
+            ## For all dimensions of the input data point
+            for j in range(len(data)):
+                curMu *= ExtractRulesQPSO._expMembership(data[j], m[j], s[j])
+            
+            mu *= curMu
+        
+        return mu
+    
+    def _returnClassWithMaxMF(all_class_centers, all_class_stds, data_point, class_labels):
+        class_idx_with_max_mf = 0
+        cur_max_mf = 0
+        for k in range(len(all_class_centers)):
+            centers_k = all_class_centers[k]
+            stds_k = all_class_stds[k]
+            
+            cur_mf = ExtractRulesQPSO._maxMembershipFromAllRules(centers_k, stds_k, data_point)
+            
+            if cur_mf > cur_max_mf:
+                class_idx_with_max_mf = k
+                cur_max_mf = cur_mf
+            
+        return class_labels[class_idx_with_max_mf]
+    
     ## Return the overall classification error
     def _classificationError(all_class_centers, all_class_stds, all_class_data):
         """This function calculates the overall classification error that is to be minimized.

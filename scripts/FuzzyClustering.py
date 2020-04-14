@@ -10,7 +10,8 @@ class FuzzyClustering:
     alpha = 4 / ra / ra
     beta = 4 / rb / rb
     
-    elower = 0.15
+    # original values elower = 0.15 and eupper = 0.5
+    elower = 0.01
     eupper = 0.5
     
     ### Making sure all class variables are of class np.array

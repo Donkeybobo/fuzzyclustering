@@ -222,8 +222,11 @@ class ExtractRulesQPSO:
                 
                 y = p + prob_vector
                 
+                # add cap to values in y
+                y_capped = [yy if abs(yy) <= 3 else 3 for yy in y]
+                
                 # update x[i] and f_x[i]
-                x[i] = y.copy()
+                x[i] = y_capped.copy()
                 f_x[i] = ExtractRulesQPSO._objective(x[i], all_class_centers, all_class_data)
                 
                 # update pbest and f_pbest when needed
